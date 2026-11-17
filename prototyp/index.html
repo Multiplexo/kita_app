@@ -1,0 +1,669 @@
+<!doctype html>
+<!--
+  Klickbarer Entwurf der KiTa-App (Das Kinderhaus Blume, Soest)
+  Farben und Schriften sind von www.das-kinderhaus-soest.de übernommen.
+  ---------------------------------------------------------
+  Das ist KEINE fertige App, sondern ein Entwurf zum Ausprobieren.
+  Alle Daten sind erfunden und leben nur im Browser. Nach einem Neuladen
+  ist alles wieder wie am Anfang.
+
+  Aufbau dieser Datei (zum Lernen):
+    1. <style>   – das Aussehen (CSS)
+    2. <body>    – das Grundgerüst (HTML)
+    3. <script>  – das Verhalten (JavaScript):
+         a) Beispieldaten       (was die App "weiß")
+         b) Bildschirme         (Funktionen, die HTML erzeugen)
+         c) Aktionen            (was passiert, wenn man etwas antippt)
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KiTa-App Entwurf</title>
+<!-- Schriften wie auf der Homepage: Baloo 2 (Überschriften), Gochi Hand (Handschrift), Montserrat (Text) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Gochi+Hand&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Farben als "Tokens": an einer Stelle ändern, überall wirksam ---------- */
+  :root {
+    /* Aus der Homepage: "Papier", "Tinte", blaue Tür (Ü3), grüne Tür (U3), Gelb, Rot */
+    --bg: #fdf8f0;           /* papier */
+    --surface: #ffffff;
+    --surface-2: #fbf3e4;    /* papier-2 */
+    --text: #2e2a26;         /* tinte */
+    --muted: #6b645b;
+    --line: #f0e4cc;
+    --primary: #0050a0;      /* blau – Schmetterlinge, Ü3 */
+    --primary-soft: #e3ecf7; /* blau-hell */
+    --green: #008050;        /* grün – Käfer, U3 */
+    --green-soft: #e3f3eb;
+    --accent: #f0b000;       /* gelb */
+    --accent-soft: #fff4cc;
+    --accent-text: #8a6400;
+    --danger: #df1021;       /* rot */
+    --danger-soft: #fbe0e2;
+    --radius: 18px;
+    --font-display: "Baloo 2", system-ui, sans-serif;
+    --font-hand: "Gochi Hand", cursive;
+    --font-body: "Montserrat", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1916; --surface: #25221e; --surface-2: #2e2a25; --text: #f4eee4;
+      --muted: #aaa294; --line: #3a352e; --primary: #7fb2ea; --primary-soft: #1c3352;
+      --green: #5cc497; --green-soft: #1b3a2c;
+      --accent: #f5c542; --accent-soft: #3d3216; --accent-text: #f5c542;
+      --danger: #f0717b; --danger-soft: #45202444;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 var(--font-body);
+    display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* ---------- Leiste über dem Handy: Ansicht wechseln ---------- */
+  .topbar { width: 100%; max-width: 430px; padding: 16px 16px 8px; }
+  .topbar h1 { font-size: 15px; font-weight: 600; margin: 0 0 8px; color: var(--muted); }
+  .switch { display: flex; background: var(--surface-2); border-radius: 999px; padding: 4px; }
+  .switch button {
+    flex: 1; border: 0; background: transparent; padding: 8px 12px; border-radius: 999px;
+    cursor: pointer; font-weight: 600; color: var(--muted);
+  }
+  .switch button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px #0002; }
+  .hint { font-size: 13px; color: var(--muted); margin: 8px 2px 0; }
+
+  /* ---------- Das "Handy" ---------- */
+  .phone {
+    width: 100%; max-width: 430px; flex: 1; display: flex; flex-direction: column;
+    background: var(--bg); position: relative;
+  }
+  @media (min-width: 520px) {
+    .phone {
+      flex: none; height: 820px; margin: 8px 0 32px; border-radius: 40px; overflow: hidden;
+      border: 10px solid #1e1d1b; box-shadow: 0 20px 50px #0003;
+    }
+  }
+  .screen { flex: 1; overflow-y: auto; padding: 20px 16px 24px; }
+  .screen h2 { font: 700 26px/1.15 var(--font-display); margin: 4px 0 4px; }
+  .hand { font-family: var(--font-hand); font-size: 20px; color: var(--primary); }
+  .screen h3 { font: 700 18px/1.2 var(--font-display); margin: 22px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 12px; }
+
+  /* ---------- Untere Navigation ---------- */
+  .tabs { display: flex; border-top: 1px solid var(--line); background: var(--surface); }
+  .tabs button {
+    flex: 1; border: 0; background: none; padding: 10px 4px 12px; cursor: pointer;
+    font-size: 12px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .tabs button .ico { font-size: 20px; line-height: 1; }
+  .tabs button.on { color: var(--primary); font-weight: 600; }
+  .badge {
+    background: var(--danger); color: #fff; border-radius: 999px; font-size: 11px;
+    padding: 0 6px; margin-left: 2px;
+  }
+
+  /* ---------- Bausteine ---------- */
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .card.hl { border-color: var(--accent); background: var(--accent-soft); }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .grow { flex: 1; min-width: 0; }
+  .small { font-size: 13px; color: var(--muted); }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--primary-soft); color: var(--primary); font-weight: 700; flex: none;
+  }
+  .chip {
+    display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-2); color: var(--muted); white-space: nowrap;
+  }
+  .chip.ok { background: var(--primary-soft); color: var(--primary); }
+  .chip.warn { background: var(--accent-soft); color: var(--accent-text); }
+  .chip.bad { background: var(--danger-soft); color: var(--danger); }
+
+  .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .action {
+    border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius);
+    padding: 14px 6px; cursor: pointer; text-align: center; font-size: 13px; font-weight: 600;
+  }
+  .action .ico { display: block; font-size: 26px; margin-bottom: 4px; }
+
+  .btn {
+    display: block; width: 100%; border: 0; border-radius: 12px; padding: 14px; cursor: pointer;
+    background: var(--primary); color: #fff; font-weight: 700; margin-top: 16px;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #10201c; } }
+  .btn.ghost { background: var(--surface-2); color: var(--text); }
+  .link { border: 0; background: none; color: var(--primary); cursor: pointer; padding: 0; font-weight: 600; }
+  .back { border: 0; background: none; color: var(--primary); cursor: pointer; padding: 0; margin-bottom: 8px; font-weight: 600; }
+
+  .choice { display: block; cursor: pointer; }
+  .choice input { position: absolute; opacity: 0; }
+  .choice .card { transition: border-color .15s; }
+  .choice input:checked + .card { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+  .choice input:focus-visible + .card { outline: 2px solid var(--primary); }
+
+  label.field { display: block; margin-top: 14px; font-weight: 600; font-size: 14px; }
+  .input {
+    width: 100%; margin-top: 6px; padding: 12px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--surface);
+  }
+  textarea.input { min-height: 100px; resize: vertical; }
+  .seg { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .seg button {
+    border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+    padding: 8px 14px; cursor: pointer;
+  }
+  .seg button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .check { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+
+  .list-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: center; }
+  .list-item:last-child { border-bottom: 0; }
+  .menu-item {
+    display: flex; width: 100%; text-align: left; align-items: center; gap: 12px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .menu-item .ico { font-size: 22px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .stat b { display: block; font-size: 24px; }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  .date { width: 52px; text-align: center; background: var(--primary-soft); color: var(--primary); border-radius: 12px; padding: 6px 0; flex: none; }
+  .date b { display: block; font: 700 22px/1.1 var(--font-display); }
+  .date span { font-size: 11px; text-transform: uppercase; }
+
+  .toast {
+    position: absolute; left: 16px; right: 16px; bottom: 80px; background: var(--text); color: var(--bg);
+    padding: 12px 16px; border-radius: 12px; font-weight: 600; opacity: 0; transform: translateY(10px);
+    transition: .25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- Grundgerüst: oben der Ansichts-Schalter, darunter das "Handy" -->
+<div class="topbar">
+  <h1>Entwurf · Das Kinderhaus Blume · Beispieldaten</h1>
+  <div class="switch" role="tablist" aria-label="Ansicht">
+    <button id="sw-eltern" onclick="setRole('eltern')">👪 Eltern</button>
+    <button id="sw-team" onclick="setRole('team')">🧑‍🏫 Team</button>
+  </div>
+  <p class="hint">Tipp: Als Eltern eine Abholung melden, dann in die Team-Ansicht wechseln.</p>
+</div>
+
+<div class="phone">
+  <main class="screen" id="screen"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* =====================================================================
+   a) BEISPIELDATEN
+   In der echten App kämen diese Daten aus einer Datenbank (Supabase).
+   ===================================================================== */
+const data = {
+  eltern: { name: "Anna", kind: "Mia", gruppe: "Schmetterlinge" },
+
+  // Personen, die Mia abholen dürfen (einmalig hinterlegt und von der KiTa bestätigt)
+  abholer: [
+    { id: "mama", name: "Anna (Mama)", info: "Standard" },
+    { id: "papa", name: "Jonas (Papa)", info: "" },
+    { id: "oma",  name: "Oma Gisela",  info: "0171 234 56 78" },
+    { id: "opa",  name: "Opa Werner",  info: "0171 876 54 32" },
+  ],
+
+  // Was die Eltern heute gemeldet haben (am Anfang: nichts)
+  meldung: null,         // { wer, zeit, tag, gelesen }
+  krank: null,           // { grund, bis }
+
+  neuigkeiten: [
+    { titel: "Tag der offenen Tür am 27.11.", text: "Erzählt gern Freunden und Nachbarn davon – beide Türen stehen offen, 16:30 bis 18:30 Uhr.", von: "Petra Blume", wann: "gestern", neu: true },
+    { titel: "Wechselkleidung", text: "Es wird kälter – bitte Matschhose und warme Wechselsachen ins Fach legen.", von: "Schmetterlingsgruppe", wann: "Mo", neu: false },
+  ],
+
+  termine: [
+    // Echte Termine aus dem Jahresplan der Homepage (www.das-kinderhaus-soest.de/jahresplan)
+    { tag: "18", mon: "Nov", titel: "Elternschule: „Mein Kind kommt zur Schule“", zeit: "19:30 – 21:30 Uhr · Ü3", rsvp: null },
+    { tag: "23", mon: "Nov", titel: "Aktion Soester Tafel", zeit: "Montag", rsvp: undefined },
+    { tag: "27", mon: "Nov", titel: "Tag der offenen Tür", zeit: "16:30 – 18:30 Uhr", rsvp: undefined },
+    { tag: "01", mon: "Dez", titel: "Elternabend Maria Montessori", zeit: "Dienstag", rsvp: null },
+    { tag: "07", mon: "Dez", titel: "Nikolausfeier mit den Kindern", zeit: "Montag", rsvp: undefined },
+    { tag: "22", mon: "Dez", titel: "Weihnachtssingen mit Kindern und Eltern", zeit: "Dienstag", rsvp: null },
+  ],
+
+  essen: [
+    { tag: "Montag",     gericht: "Gemüselasagne",                     info: "vegetarisch · Gluten, Milch" },
+    { tag: "Dienstag",   gericht: "Hähnchen mit Reis und Möhren",      info: "" },
+    { tag: "Mittwoch",   gericht: "Kartoffelsuppe mit Würstchen",      info: "Würstchen auch vegetarisch" },
+    { tag: "Donnerstag", gericht: "Fischstäbchen, Kartoffelpüree",     info: "Fisch, Gluten, Milch" },
+    { tag: "Freitag",    gericht: "Nudeln mit Tomatensoße",            info: "vegetarisch · Gluten" },
+  ],
+
+  team: [
+    // Namen und Rollen von der Homepage; die Vorstellungstexte schreibt jede Person später selbst
+    { name: "Lisa Kipp",           rolle: "Pädagogische Leitung Ü3", text: "" },
+    { name: "Karola Vahrenbrink",  rolle: "Pädagogische Fachkraft Ü3", text: "" },
+    { name: "Valentina Wulfert",   rolle: "Pädagogische Fachkraft Ü3", text: "" },
+    { name: "Petra Blume",         rolle: "Gründerin des Kinderhauses", text: "" },
+  ],
+
+  elternrat: [
+    { name: "Katrin Schulz", rolle: "Vorsitz",           kind: "Mutter von Paul" },
+    { name: "Tobias Lang",   rolle: "Stellvertretung",   kind: "Vater von Emma" },
+    { name: "Aylin Demir",   rolle: "Käfergruppe",       kind: "Mutter von Can" },
+  ],
+
+  // Wünsche und Anregungen – Eltern schreiben, Team bearbeitet
+  wuensche: [
+    { text: "Könnte der Essensplan auch die Nachmittagssnacks zeigen?", anonym: false, von: "Anna", status: "In Bearbeitung" },
+    { text: "Ein Bücher-Tauschregal im Flur wäre toll!", anonym: true, von: "anonym", status: "Umgesetzt" },
+  ],
+
+  // Die Schmetterlingsgruppe heute (für die Team-Ansicht)
+  kinder: [
+    ["Mia", "Mama"], ["Paul", "Papa"], ["Emma", "Mama"], ["Ben", "Papa"], ["Lina", "Mama"],
+    ["Noah", "Oma Ute", "geändert"], ["Lea", "Mama"], ["Finn", "krank"], ["Ella", "Papa"],
+    ["Leon", "Mama"], ["Mila", "Papa"], ["Jonas", "Urlaub"], ["Clara", "Mama"], ["Elias", "Papa"],
+    ["Ida", "Nachbarin Frau Ritter", "fremd"], ["Theo", "Mama"], ["Frieda", "Papa"], ["Anton", "Mama"],
+    ["Marie", "Opa Klaus", "geändert"], ["Luis", "Papa"], ["Hanna", "Mama"], ["Karl", "Papa"],
+    ["Lotta", "Mama"], ["Oskar", "Papa"],
+  ],
+};
+
+/* Wo befinden wir uns gerade? */
+const state = { role: "eltern", tab: "start", seite: null, nurAenderungen: false };
+
+/* =====================================================================
+   b) BILDSCHIRME
+   Jede Funktion gibt HTML-Text zurück, der dann angezeigt wird.
+   ===================================================================== */
+
+// ---------- Eltern: Startseite ----------
+function elternStart() {
+  const m = data.meldung, k = data.krank;
+  let status;
+  if (k) {
+    status = `<span class="chip bad">Abgemeldet: ${k.grund}</span>
+              <div class="small" style="margin-top:6px">${k.bis} · ${k.gelesen ? "✓ Gruppe hat es gelesen" : "gesendet"}</div>`;
+  } else if (m) {
+    status = `<span class="chip warn">Abholung ${m.tag.toLowerCase()}: ${m.wer}${m.zeit ? ", ca. " + m.zeit : ""}</span>
+              <div class="small" style="margin-top:6px">${m.gelesen ? "✓ Gruppe hat es gelesen" : "gesendet – noch nicht gelesen"}</div>`;
+  } else {
+    status = `<span class="chip ok">Abholung heute: Anna (Mama)</span>`;
+  }
+
+  const neu = data.neuigkeiten.map(n => `
+    <div class="card ${n.neu ? "hl" : ""}">
+      <div class="row"><b class="grow">${n.titel}</b><span class="small">${n.wann}</span></div>
+      <div style="margin-top:4px">${n.text}</div>
+      <div class="small" style="margin-top:6px">${n.von}</div>
+    </div>`).join("");
+
+  const naechste = data.termine.slice(0, 2).map(terminZeile).join("");
+
+  return `
+    <p class="hand" style="margin:0">Guten Morgen, ${data.eltern.name}!</p>
+    <h2>${data.eltern.kind} · ${data.eltern.gruppe} 🦋</h2>
+    <div class="card" style="margin-top:12px">${status}</div>
+
+    <div class="actions" style="margin-top:12px">
+      <button class="action" onclick="go('abholung')"><span class="ico">🚗</span>Abholung melden</button>
+      <button class="action" onclick="go('krank')"><span class="ico">🤒</span>Krank melden</button>
+      <button class="action" onclick="go('wunsch')"><span class="ico">💡</span>Wunsch äußern</button>
+    </div>
+
+    <h3>Heute zu Mittag</h3>
+    <div class="card row"><span style="font-size:26px">🍽️</span>
+      <div class="grow"><b>${data.essen[1].gericht}</b><div class="small">Dienstag</div></div></div>
+
+    <h3>Neuigkeiten</h3>${neu}
+
+    <h3 class="row"><span class="grow">Nächste Termine</span><button class="link" onclick="tab('termine')">Alle</button></h3>
+    ${naechste}`;
+}
+
+function terminZeile(t, i) {
+  let rsvp = "";
+  if (t.rsvp !== undefined) {
+    rsvp = t.rsvp
+      ? `<span class="chip ${t.rsvp === "Zugesagt" ? "ok" : ""}">${t.rsvp}</span>`
+      : `<div class="seg" style="margin-top:8px">
+           <button onclick="rsvp(${i},'Zugesagt')">Wir kommen</button>
+           <button onclick="rsvp(${i},'Abgesagt')">Leider nicht</button></div>`;
+  }
+  return `<div class="card row" style="align-items:flex-start">
+    <div class="date"><b>${t.tag}</b><span>${t.mon}</span></div>
+    <div class="grow"><b>${t.titel}</b><div class="small">${t.zeit}</div>${rsvp}</div></div>`;
+}
+
+// ---------- Eltern: Abholung melden ----------
+function elternAbholung() {
+  const optionen = data.abholer.map((p, i) => `
+    <label class="choice">
+      <input type="radio" name="wer" value="${p.name}" ${i === 2 ? "checked" : ""}>
+      <div class="card row"><div class="avatar">${initialen(p.name)}</div>
+        <div class="grow"><b>${p.name}</b><div class="small">${p.info || "abholberechtigt"}</div></div>
+        <span class="chip ok">✓ bestätigt</span></div>
+    </label>`).join("");
+
+  return `
+    <button class="back" onclick="go(null)">‹ Zurück</button>
+    <h2>Wer holt ${data.eltern.kind} ab?</h2>
+    <p class="sub">Die ganze Gruppe sieht deine Meldung sofort – auch nach dem Schichtwechsel.</p>
+
+    <label class="field">Wann?</label>
+    <div class="seg" id="seg-tag">
+      <button class="on" onclick="seg(this)">Heute</button>
+      <button onclick="seg(this)">Morgen</button>
+      <button onclick="seg(this)">Jeden Donnerstag</button>
+    </div>
+
+    <label class="field">Wer?</label>
+    <div style="margin-top:6px">${optionen}</div>
+    <button class="link" onclick="toast('Im Entwurf noch nicht möglich – wird mit Ausweis-Hinweis markiert')">+ Andere Person einmalig</button>
+
+    <label class="field" for="zeit">Ungefähre Uhrzeit (optional)</label>
+    <select class="input" id="zeit">
+      <option value="">keine Angabe</option>
+      <option>14:00</option><option>14:30</option><option selected>15:00</option>
+      <option>15:30</option><option>16:00</option><option>16:30</option>
+    </select>
+
+    <button class="btn" onclick="abholungSenden()">Meldung senden</button>`;
+}
+
+// ---------- Eltern: Krankmeldung ----------
+function elternKrank() {
+  return `
+    <button class="back" onclick="go(null)">‹ Zurück</button>
+    <h2>${data.eltern.kind} abmelden</h2>
+    <p class="sub">Kein Anruf am Morgen nötig – die Gruppe weiß sofort Bescheid.</p>
+
+    <label class="field">Grund</label>
+    <div class="seg" id="seg-grund">
+      <button class="on" onclick="seg(this)">Krank</button>
+      <button onclick="seg(this)">Urlaub</button>
+      <button onclick="seg(this)">Sonstiges</button>
+    </div>
+
+    <label class="field">Wie lange?</label>
+    <div class="seg" id="seg-dauer">
+      <button class="on" onclick="seg(this)">Nur heute</button>
+      <button onclick="seg(this)">Bis einschl. morgen</button>
+      <button onclick="seg(this)">Unbekannt</button>
+    </div>
+
+    <label class="field" for="krank-notiz">Hinweis für die Gruppe (optional)</label>
+    <textarea class="input" id="krank-notiz" placeholder="z. B. Fieber seit gestern Abend"></textarea>
+
+    <button class="btn" onclick="krankSenden()">Abmeldung senden</button>`;
+}
+
+// ---------- Eltern: Wunsch / Anregung ----------
+function elternWunsch() {
+  const liste = data.wuensche.filter(w => w.von === "Anna" || w.eigen).map(w => `
+    <div class="card"><div>${w.text}</div>
+      <div style="margin-top:8px"><span class="chip ${statusFarbe(w.status)}">${w.status}</span>
+      ${w.anonym ? '<span class="chip">anonym</span>' : ""}</div></div>`).join("");
+
+  return `
+    <button class="back" onclick="go(null)">‹ Zurück</button>
+    <h2>Wünsche & Anregungen</h2>
+    <p class="sub">Was können wir besser machen? Jede Nachricht wird gelesen.</p>
+
+    <label class="field" for="wunsch-text">Deine Idee</label>
+    <textarea class="input" id="wunsch-text" placeholder="Ich fände es schön, wenn …"></textarea>
+    <label class="check"><input type="checkbox" id="wunsch-anonym"> Anonym senden</label>
+    <button class="btn" onclick="wunschSenden()">Absenden</button>
+
+    <h3>Deine bisherigen Nachrichten</h3>
+    ${liste || '<p class="small">Noch keine.</p>'}`;
+}
+
+// ---------- Eltern: Termine ----------
+function elternTermine() {
+  return `<h2>Termine</h2><p class="sub">Aus dem Jahresplan des Kinderhauses</p>
+    ${data.termine.map(terminZeile).join("")}
+    <button class="btn ghost" onclick="toast('Später: Kalender abonnieren – die Homepage bietet schon eine Termin-Datei an')">📅 Kalender abonnieren</button>`;
+}
+
+// ---------- Eltern: Essensplan ----------
+function elternEssen() {
+  return `<h2>Essensplan</h2><p class="sub">Woche vom 16. bis 20. November</p>
+    ${data.essen.map((e, i) => `
+      <div class="card ${i === 1 ? "hl" : ""}">
+        <div class="small">${e.tag}${i === 1 ? " · heute" : ""}</div>
+        <b>${e.gericht}</b>
+        ${e.info ? `<div class="small" style="margin-top:4px">${e.info}</div>` : ""}
+      </div>`).join("")}`;
+}
+
+// ---------- Eltern: Mehr ----------
+function elternMehr() {
+  return `<h2>Mehr</h2>
+    <button class="menu-item" onclick="go('team')"><span class="ico">🧑‍🏫</span><span class="grow"><b>Unser Team</b><div class="small">Wer betreut ${data.eltern.kind}?</div></span>›</button>
+    <button class="menu-item" onclick="go('elternrat')"><span class="ico">🤝</span><span class="grow"><b>Elternrat</b><div class="small">Eure Ansprechpartner:innen</div></span>›</button>
+    <button class="menu-item" onclick="go('wunsch')"><span class="ico">💡</span><span class="grow"><b>Wünsche & Anregungen</b><div class="small">Ideen und Feedback</div></span>›</button>
+    <button class="menu-item" onclick="go('kontakt')"><span class="ico">📍</span><span class="grow"><b>Kontakt</b><div class="small">Adresse, Telefon, Öffnungszeiten</div></span>›</button>
+    <button class="menu-item" onclick="go('abholer')"><span class="ico">🪪</span><span class="grow"><b>Abholberechtigte</b><div class="small">Personen verwalten</div></span>›</button>`;
+}
+
+function elternTeam() {
+  return `<button class="back" onclick="go(null)">‹ Zurück</button><h2>Unser Team</h2>
+    <p class="sub">Hinter der blauen Tür: das Ü3-Team</p>
+    ${data.team.map(p => `<div class="card row" style="align-items:flex-start">
+      <div class="avatar">${initialen(p.name)}</div>
+      <div class="grow"><b>${p.name}</b><div class="small">${p.rolle}</div>
+      <div style="margin-top:4px" class="${p.text ? "" : "small"}">${p.text || "Kurzvorstellung folgt – schreibt die Person selbst."}</div></div></div>`).join("")}`;
+}
+
+function elternElternrat() {
+  return `<button class="back" onclick="go(null)">‹ Zurück</button><h2>Elternrat</h2>
+    <p class="sub">Für Fragen, Ideen und Anliegen, die ihr lieber mit Eltern besprecht.</p>
+    <p class="small">Namen sind Beispiele.</p>
+    ${data.elternrat.map(p => `<div class="card row">
+      <div class="avatar">${initialen(p.name)}</div>
+      <div class="grow"><b>${p.name}</b><div class="small">${p.rolle} · ${p.kind}</div></div>
+      <button class="link" onclick="toast('Später: Nachricht an den Elternrat')">✉️</button></div>`).join("")}`;
+}
+
+function elternKontakt() {
+  return `<button class="back" onclick="go(null)">‹ Zurück</button><h2>Kontakt</h2>
+    <div class="card"><b>Das Kinderhaus Blume</b><div>Sassendorfer Weg 11a<br>59494 Soest</div></div>
+    <a class="card row" href="tel:029213461699" style="text-decoration:none;color:inherit"><span>📞</span><span class="grow">Telefon</span><span class="small">02921 3461699</span></a>
+    <a class="card row" href="mailto:schmetterling@das-kinderhaus-soest.de" style="text-decoration:none;color:inherit"><span>🦋</span><span class="grow">Schmetterlinge</span><span class="small">schmetterling@…</span></a>
+    <a class="card row" href="mailto:kaefer@das-kinderhaus-soest.de" style="text-decoration:none;color:inherit"><span>🐞</span><span class="grow">Käfer</span><span class="small">kaefer@…</span></a>
+    <h3>Öffnungszeiten</h3>
+    <div class="card row"><span class="grow">Montag bis Freitag</span><span>7:00 – 16:30 Uhr</span></div>`;
+}
+
+function elternAbholer() {
+  return `<button class="back" onclick="go(null)">‹ Zurück</button><h2>Abholberechtigte</h2>
+    <p class="sub">Einmal hinterlegen, die KiTa bestätigt. Danach reicht ein Tipp.</p>
+    ${data.abholer.map(p => `<div class="card row"><div class="avatar">${initialen(p.name)}</div>
+      <div class="grow"><b>${p.name}</b><div class="small">${p.info || "abholberechtigt"}</div></div>
+      <span class="chip ok">✓ bestätigt</span></div>`).join("")}
+    <button class="btn ghost" onclick="toast('Später: Person hinzufügen')">+ Person hinzufügen</button>`;
+}
+
+// ---------- Team: Heute ----------
+function teamHeute() {
+  // Die Meldung von Mias Eltern fließt in die Liste ein
+  const kinder = data.kinder.map(([name, abholung, art]) => {
+    if (name === "Mia" && data.krank) return [name, data.krank.grund, data.krank.grund === "Krank" ? "krank" : "Urlaub", true];
+    if (name === "Mia" && data.meldung && data.meldung.tag === "Heute")
+      return [name, data.meldung.wer + (data.meldung.zeit ? ", ca. " + data.meldung.zeit : ""), "geändert", true];
+    if (abholung === "krank") return [name, "Krank", "krank"];
+    if (abholung === "Urlaub") return [name, "Urlaub", "Urlaub"];
+    return [name, abholung, art];
+  });
+
+  // Jetzt hat das Team die Meldung gesehen → Eltern sehen "gelesen"
+  if (data.meldung) data.meldung.gelesen = true;
+  if (data.krank) data.krank.gelesen = true;
+
+  const abwesend = kinder.filter(k => k[2] === "krank" || k[2] === "Urlaub").length;
+  const aenderungen = kinder.filter(k => k[2] === "geändert" || k[2] === "fremd").length;
+
+  const sichtbar = state.nurAenderungen
+    ? kinder.filter(k => k[2] && k[2] !== undefined)
+    : kinder;
+
+  const zeilen = sichtbar.map(([name, info, art, neu]) => {
+    let chip = "";
+    if (art === "krank") chip = '<span class="chip bad">krank</span>';
+    else if (art === "Urlaub") chip = '<span class="chip">Urlaub</span>';
+    else if (art === "geändert") chip = '<span class="chip warn">Abholung geändert</span>';
+    else if (art === "fremd") chip = '<span class="chip bad">Ausweis prüfen</span>';
+    return `<div class="list-item" ${neu ? 'style="background:var(--accent-soft);margin:0 -16px;padding:12px 16px"' : ""}>
+      <div class="avatar" style="width:36px;height:36px;font-size:14px">${name[0]}</div>
+      <div class="grow"><b>${name}</b>${neu ? ' <span class="chip warn">neu</span>' : ""}
+        <div class="small">${art === "krank" || art === "Urlaub" ? "nicht da" : "Abholung: " + info}</div></div>${chip}</div>`;
+  }).join("");
+
+  return `<p class="sub" style="margin:0">Dienstag, 17. November</p>
+    <h2>Schmetterlinge heute 🦋</h2>
+    <div class="stats" style="margin-top:12px">
+      <div class="stat"><b>${kinder.length - abwesend}</b><span>erwartet</span></div>
+      <div class="stat"><b>${abwesend}</b><span>abwesend</span></div>
+      <div class="stat"><b>${aenderungen}</b><span>Abholung anders</span></div>
+    </div>
+    <div class="seg" style="margin-top:16px">
+      <button class="${state.nurAenderungen ? "" : "on"}" onclick="state.nurAenderungen=false;render()">Alle ${kinder.length}</button>
+      <button class="${state.nurAenderungen ? "on" : ""}" onclick="state.nurAenderungen=true;render()">Nur Besonderheiten</button>
+    </div>
+    <div class="card" style="margin-top:12px;padding-top:0;padding-bottom:0">${zeilen}</div>`;
+}
+
+// ---------- Team: Wünsche-Eingang ----------
+function teamWuensche() {
+  const optionen = ["Neu", "Gelesen", "In Bearbeitung", "Umgesetzt"];
+  return `<h2>Wünsche & Anregungen</h2><p class="sub">Von den Eltern – Status ändern, Eltern sehen ihn sofort.</p>
+    ${data.wuensche.slice().reverse().map((w, ri) => {
+      const i = data.wuensche.length - 1 - ri;
+      return `<div class="card ${w.status === "Neu" ? "hl" : ""}">
+        <div>${w.text}</div>
+        <div class="small" style="margin-top:6px">von ${w.anonym ? "anonym" : w.von}</div>
+        <select class="input" onchange="data.wuensche[${i}].status=this.value;render();toast('Status geändert')">
+          ${optionen.map(o => `<option ${o === w.status ? "selected" : ""}>${o}</option>`).join("")}
+        </select></div>`;
+    }).join("")}`;
+}
+
+// ---------- Team: Neuigkeit veröffentlichen ----------
+function teamPosten() {
+  return `<h2>Neuigkeit senden</h2><p class="sub">Ersetzt Zettel im Fach und E-Mail-Verteiler.</p>
+    <label class="field">An wen?</label>
+    <div class="seg" id="seg-an">
+      <button class="on" onclick="seg(this)">Schmetterlinge</button>
+      <button onclick="seg(this)">Käfer</button>
+      <button onclick="seg(this)">Alle Eltern</button>
+    </div>
+    <label class="field" for="post-titel">Titel</label>
+    <input class="input" id="post-titel" placeholder="z. B. Ausflug in den Wald">
+    <label class="field" for="post-text">Nachricht</label>
+    <textarea class="input" id="post-text" placeholder="Was sollen die Eltern wissen?"></textarea>
+    <label class="check"><input type="checkbox" checked> Lesebestätigung anfordern</label>
+    <button class="btn" onclick="postSenden()">Senden</button>`;
+}
+
+/* =====================================================================
+   c) AKTIONEN
+   ===================================================================== */
+function abholungSenden() {
+  const wer = document.querySelector('input[name="wer"]:checked').value;
+  const zeit = document.getElementById("zeit").value;
+  const tag = document.querySelector("#seg-tag .on").textContent;
+  data.meldung = { wer, zeit, tag, gelesen: false };
+  data.krank = null;
+  state.seite = null; render();
+  toast("Gesendet – die Gruppe ist informiert");
+}
+
+function krankSenden() {
+  const grund = document.querySelector("#seg-grund .on").textContent;
+  const bis = document.querySelector("#seg-dauer .on").textContent;
+  data.krank = { grund, bis, gelesen: false };
+  data.meldung = null;
+  state.seite = null; render();
+  toast("Abmeldung gesendet. Gute Besserung!");
+}
+
+function wunschSenden() {
+  const text = document.getElementById("wunsch-text").value.trim();
+  if (!text) return toast("Bitte erst etwas schreiben");
+  const anonym = document.getElementById("wunsch-anonym").checked;
+  data.wuensche.push({ text, anonym, von: anonym ? "anonym" : "Anna", status: "Neu", eigen: true });
+  render(); toast("Danke! Deine Idee ist angekommen");
+}
+
+function postSenden() {
+  const titel = document.getElementById("post-titel").value.trim();
+  const text = document.getElementById("post-text").value.trim();
+  if (!titel || !text) return toast("Bitte Titel und Nachricht ausfüllen");
+  data.neuigkeiten.forEach(n => n.neu = false);
+  data.neuigkeiten.unshift({ titel, text, von: "Schmetterlingsgruppe", wann: "gerade eben", neu: true });
+  render(); toast("Gesendet – Eltern bekommen eine Push-Nachricht");
+}
+
+function rsvp(i, antwort) { data.termine[i].rsvp = antwort; render(); toast("Danke für die Rückmeldung"); }
+
+/* =====================================================================
+   NAVIGATION und HILFSFUNKTIONEN
+   ===================================================================== */
+const tabsJe = {
+  eltern: [["start", "🏠", "Start"], ["termine", "📅", "Termine"], ["essen", "🍽️", "Essen"], ["mehr", "☰", "Mehr"]],
+  team:   [["heute", "🦋", "Heute"], ["wuensche", "💡", "Wünsche"], ["posten", "📣", "Senden"]],
+};
+const bildschirme = {
+  start: elternStart, termine: elternTermine, essen: elternEssen, mehr: elternMehr,
+  abholung: elternAbholung, krank: elternKrank, wunsch: elternWunsch, team: elternTeam,
+  elternrat: elternElternrat, kontakt: elternKontakt, abholer: elternAbholer,
+  heute: teamHeute, wuensche: teamWuensche, posten: teamPosten,
+};
+
+function setRole(r) { state.role = r; state.tab = tabsJe[r][0][0]; state.seite = null; render(); }
+function tab(t) { state.tab = t; state.seite = null; render(); }
+function go(seite) { state.seite = seite; render(); }
+
+function render() {
+  document.getElementById("sw-eltern").classList.toggle("on", state.role === "eltern");
+  document.getElementById("sw-team").classList.toggle("on", state.role === "team");
+
+  const neueWuensche = data.wuensche.filter(w => w.status === "Neu").length;
+  document.getElementById("tabs").innerHTML = tabsJe[state.role].map(([id, ico, name]) => `
+    <button class="${state.tab === id ? "on" : ""}" onclick="tab('${id}')">
+      <span class="ico">${ico}</span><span>${name}${id === "wuensche" && neueWuensche ? `<span class="badge">${neueWuensche}</span>` : ""}</span>
+    </button>`).join("");
+
+  const screen = document.getElementById("screen");
+  screen.innerHTML = bildschirme[state.seite || state.tab]();
+  screen.scrollTop = 0;
+}
+
+function seg(btn) { btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
+function initialen(name) { return name.replace(/\(.*\)/, "").trim().split(" ").map(w => w[0]).slice(0, 2).join(""); }
+function statusFarbe(s) { return s === "Umgesetzt" ? "ok" : s === "In Bearbeitung" ? "warn" : ""; }
+
+let toastTimer;
+function toast(text) {
+  const t = document.getElementById("toast");
+  t.textContent = text; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+render(); // Los geht's
+</script>
+</body>
+</html>

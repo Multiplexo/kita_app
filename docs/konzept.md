@@ -1,4 +1,4 @@
-# KiTa-App für das Kinderhaus Petra Blume – Konzept
+# KiTa-App für Das Kinderhaus Blume (Soest) – Konzept
 
 > Lebendes Dokument. Wir entwickeln das Konzept gemeinsam weiter; Entscheidungen und offene Fragen werden hier festgehalten.
 
@@ -12,11 +12,12 @@ Eine App, die den KiTa-Alltag für **Eltern** spürbar leichter macht und das **
 
 | Punkt | Entscheidung |
 |---|---|
-| Einrichtung | Kinderhaus Petra Blume (private Kindertagesstätte) |
+| Einrichtung | Das Kinderhaus Blume, Sassendorfer Weg 11a, 59494 Soest. „Ein Haus. Zwei Türen.“ Pädagogik nach Maria Montessori. Homepage: www.das-kinderhaus-soest.de |
 | Zielgruppen | Eltern **und** Erzieher:innen gleichermaßen (dazu die KiTa-Leitung) |
 | Zuerst begeistern | Eltern, ohne das Team zu vernachlässigen |
 | Entwicklung | in Eigenregie |
-| Größe | Schmetterlingsgruppe (ca. 24 Kinder) und Käfergruppe (U3) |
+| Bereiche | **Schmetterlinge** (Ü3, 3–6 Jahre, private Kindertagesstätte, 25 Plätze, blaue Tür, Leitung Lisa Kipp) und **Käfer** (U3, 1–3 Jahre, bis zu 10 Kinder, grüne Tür, Leitung Hannah Fischer) |
+| Weitere Angebote | Hort, Forscher AG, Englisch AG, Krabbelgruppe, Firmenplätze (später ggf. in der App) |
 | Pilot | Start mit der **Schmetterlingsgruppe**; die Käfergruppe folgt |
 
 ## 3. Zwei Ansichten, eine App
@@ -96,10 +97,62 @@ Ziel: wenig bauen, aber jeden Tag nützlich sein.
 
 - **Abholung:** Es geht um die Info an die KiTa, wer das Kind heute abholt. Absprachen unter Eltern sind nicht gemeint.
 - **Größe:** Schmetterlingsgruppe mit ca. 24 Kindern (Pilot) und Käfergruppe (U3).
+- **Design:** Die App übernimmt das Erscheinungsbild der Homepage (siehe Abschnitt 9).
 
-## 8. Offene Fragen
+- **Heute:** Vieles läuft über E-Mail und Papier. Im Team läuft noch nichts digital. Die App muss also besonders einfach sein.
+- **Team-Geräte:** vier Erzieher:innen in der Schmetterlingsgruppe, die ihre eigenen Handys nutzen.
+- **Entwicklung:** Der Initiator hat wenig Programmiererfahrung und möchte die App selbst bauen und dabei lernen. Claude begleitet Schritt für Schritt.
 
-- Wie viele Erzieher:innen arbeiten in der Schmetterlingsgruppe? Nutzen sie ein gemeinsames Tablet oder eigene Handys?
-- Welche Vorerfahrung gibt es beim Programmieren, und welche Technik soll es werden?
+## 8. Technik und Vorgehen
+
+### Entscheidung: Web-App, die sich wie eine App installieren lässt (PWA)
+
+- Läuft auf iPhone, Android und dem Computer mit **einem** Code.
+- Kein App Store nötig: Eltern öffnen einen Link und legen die App auf den Startbildschirm.
+- Push-Benachrichtigungen funktionieren auch auf dem iPhone, sobald die App auf dem Startbildschirm liegt (ab iOS 16.4).
+- Gut zum Lernen: HTML, CSS und JavaScript sind die Grundlage des Webs und sehr gut dokumentiert.
+- Eine echte App im Store bleibt später möglich.
+
+### Bausteine (Vorschlag)
+
+| Baustein | Werkzeug | Wofür |
+|---|---|---|
+| Oberfläche | React mit Vite | Bildschirme und Bedienung |
+| Backend | Supabase (Rechenzentrum Frankfurt) | Login, Datenbank, Rechte, Dateien |
+| Hosting | z. B. Netlify oder Vercel | Die App im Internet bereitstellen |
+| Code | GitHub (dieses Repo) | Versionen sichern, gemeinsam arbeiten |
+
+Für Supabase und das Hosting wird ein Auftragsverarbeitungsvertrag (AVV) geschlossen.
+
+### Lernpfad
+
+1. **Klickbarer Entwurf** (`prototyp/index.html`, ✓ erste Fassung): Wie fühlt sich die App an? Mit Team und Eltern testen. *Lernen: HTML, CSS und ein wenig JavaScript lesen.*
+2. **Werkzeuge einrichten:** Editor (VS Code), Node.js, Git. *Lernen: Terminal, Git-Grundlagen.*
+3. **Erste echte Seite:** Infos und Team-Vorstellung, noch ohne Datenbank. *Lernen: React-Komponenten.*
+4. **Daten aus der Datenbank:** Termine und Essensplan aus Supabase. *Lernen: Tabellen, Abfragen.*
+5. **Login und Rollen:** Eltern und Team sehen Unterschiedliches. *Lernen: Authentifizierung, Zugriffsregeln.*
+6. **Melden:** Abholung, Krankmeldung, Wünsche. *Lernen: Formulare, Daten schreiben.*
+7. **Push-Benachrichtigungen und Veröffentlichung.**
+8. **Pilot mit der Schmetterlingsgruppe**, Feedback einsammeln, verbessern.
+
+## 9. Design (von der Homepage übernommen)
+
+| Token | Wert | Verwendung |
+|---|---|---|
+| papier | `#fdf8f0` | Hintergrund |
+| tinte | `#2e2a26` | Text |
+| blau | `#0050a0` | Schmetterlinge / Ü3, Hauptfarbe im Pilot |
+| grün | `#008050` | Käfer / U3 |
+| gelb | `#f0b000` | Hervorhebungen, Neues |
+| rot | `#df1021` | Warnungen (z. B. „Ausweis prüfen“) |
+
+Schriften: **Baloo 2** (Überschriften), **Gochi Hand** (handschriftliche Akzente), **Montserrat** (Text). Alle drei gibt es bei Google Fonts.
+
+**Wiederverwenden:** Die Homepage bietet die Termine schon als Kalenderdatei an (`/termine.ics`). Die App kann diese Termine übernehmen, damit sie nur an einer Stelle gepflegt werden müssen.
+
+## 10. Offene Fragen
+
 - Sollen Eltern untereinander schreiben können, oder bleibt die Kommunikation zwischen Eltern und KiTa?
-- Gibt es schon Werkzeuge, die abgelöst werden sollen (WhatsApp-Gruppen, E-Mail-Verteiler, Papier)?
+- Was davon soll die KiTa-Leitung selbst pflegen können (Essensplan, Termine), und wer macht das heute?
+- Die Homepage nennt drei Personen im Ü3-Team (Lisa Kipp, Karola Vahrenbrink, Valentina Wulfert). Wer ist die vierte Person in der Schmetterlingsgruppe?
+- Wie wird die Homepage gepflegt? Lassen sich Termine von dort automatisch in die App übernehmen?
