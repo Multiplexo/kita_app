@@ -16,6 +16,8 @@ Eine App, die den KiTa-Alltag für **Eltern** spürbar leichter macht und das **
 | Zielgruppen | Eltern **und** Erzieher:innen gleichermaßen (dazu die KiTa-Leitung) |
 | Zuerst begeistern | Eltern, ohne das Team zu vernachlässigen |
 | Entwicklung | in Eigenregie |
+| Größe | Schmetterlingsgruppe (ca. 24 Kinder) und Käfergruppe (U3) |
+| Pilot | Start mit der **Schmetterlingsgruppe**; die Käfergruppe folgt |
 
 ## 3. Zwei Ansichten, eine App
 
@@ -32,7 +34,7 @@ Eine App mit Rollen. Nach dem Login sieht jede Person die passende Ansicht.
 | Funktion | Beschreibung | Quelle |
 |---|---|---|
 | Kontakte / „Telefonliste“ | Kontakte von KiTa und Elternrat; auf Wunsch auch Elternkontakte (nur mit Zustimmung) | Nutzer |
-| Abholung | Wer holt heute ab? Dauerhaft berechtigte Personen und einmalige Abholungen („Oma kommt heute“) | Nutzer |
+| Abholung | Eltern melden, wer heute abholt (z. B. Großeltern) – siehe 4.3 | Nutzer |
 | Veranstaltungen | Feste, Ausflüge, Elternabende, auf Wunsch mit Zu- oder Absage | Nutzer |
 | Termine / Kalender | Schließtage, Ferien, Fototermin usw.; Übernahme in den eigenen Kalender | Nutzer |
 | Elternrat | Wer ist im Elternrat, wie erreiche ich ihn? | Nutzer |
@@ -58,6 +60,17 @@ Eine App mit Rollen. Nach dem Login sieht jede Person die passende Ansicht.
 | Anwesenheit | Kinder ein- und auschecken (später) |
 | Verwaltung | Familien, Kinder, Gruppen, Rollen pflegen (Leitung) |
 
+### 4.3 Detail: Abholung melden
+
+**Problem heute:** Eltern sagen es beim Bringen mündlich („Heute holt Oma ab“). Die Info hängt an einer Person und geht beim Schichtwechsel leicht verloren.
+
+**Lösung:**
+- **Abholberechtigte Personen** werden einmal pro Kind hinterlegt (Name, Beziehung, Telefon, optional Foto). Die KiTa bestätigt sie einmalig, damit auch die schriftliche Vollmacht abgedeckt ist.
+- **Abholung für heute melden:** Mit wenigen Tipps wählen Eltern eine berechtigte Person und optional eine Uhrzeit, etwa „Oma Gisela, ca. 15:00“. Das geht auch für künftige Tage oder regelmäßig, z. B. „jeden Donnerstag“.
+- **Ausnahme:** Eine nicht hinterlegte Person kann einmalig gemeldet werden. Sie ist für das Team deutlich markiert („Ausweis prüfen“).
+- **Team-Ansicht:** Die Tagesliste der Gruppe zeigt, wer welches Kind wann abholt. Änderungen am selben Tag werden hervorgehoben.
+- **Bestätigung:** Eltern sehen, dass die Gruppe die Meldung gelesen hat.
+
 ## 5. Erste Version (Vorschlag, noch nicht entschieden)
 
 Ziel: wenig bauen, aber jeden Tag nützlich sein.
@@ -79,10 +92,14 @@ Ziel: wenig bauen, aber jeden Tag nützlich sein.
 - **Grenzen:** z. B. keine Push-Nachrichten außerhalb der Öffnungszeiten (einstellbar).
 - **Barrierearm:** große Schrift möglich, einfache Sprache.
 
-## 7. Offene Fragen
+## 7. Geklärt
 
-- Bedeutet „Wer holt wann wen ab?“ die Abholberechtigung gegenüber der KiTa, die Absprache unter Eltern (Fahrgemeinschaften), oder beides?
-- Wie groß ist das Kinderhaus (Kinder, Gruppen, Mitarbeitende)?
+- **Abholung:** Es geht um die Info an die KiTa, wer das Kind heute abholt. Absprachen unter Eltern sind nicht gemeint.
+- **Größe:** Schmetterlingsgruppe mit ca. 24 Kindern (Pilot) und Käfergruppe (U3).
+
+## 8. Offene Fragen
+
+- Wie viele Erzieher:innen arbeiten in der Schmetterlingsgruppe? Nutzen sie ein gemeinsames Tablet oder eigene Handys?
 - Welche Vorerfahrung gibt es beim Programmieren, und welche Technik soll es werden?
 - Sollen Eltern untereinander schreiben können, oder bleibt die Kommunikation zwischen Eltern und KiTa?
 - Gibt es schon Werkzeuge, die abgelöst werden sollen (WhatsApp-Gruppen, E-Mail-Verteiler, Papier)?
