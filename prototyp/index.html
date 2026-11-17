@@ -19,7 +19,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KiTa-App Entwurf</title>
+<title>Kinderhaus Blume App</title>
 <!-- Schriften wie auf der Homepage: Baloo 2 (Überschriften), Gochi Hand (Handschrift), Montserrat (Text) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,8 +54,16 @@
       --muted: #aaa294; --line: #3a352e; --primary: #7fb2ea; --primary-soft: #1c3352;
       --green: #5cc497; --green-soft: #1b3a2c;
       --accent: #f5c542; --accent-soft: #3d3216; --accent-text: #f5c542;
-      --danger: #f0717b; --danger-soft: #45202444;
+      --danger: #f0717b; --danger-soft: #45202444; color-scheme: dark;
     }
+  }
+  /* Gleiche dunkle Werte, wenn jemand ausdrücklich "dunkel" gewählt hat */
+  :root[data-theme="dark"] {
+    --bg: #1b1916; --surface: #25221e; --surface-2: #2e2a25; --text: #f4eee4;
+    --muted: #aaa294; --line: #3a352e; --primary: #7fb2ea; --primary-soft: #1c3352;
+    --green: #5cc497; --green-soft: #1b3a2c;
+    --accent: #f5c542; --accent-soft: #3d3216; --accent-text: #f5c542;
+    --danger: #f0717b; --danger-soft: #45202444; color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
@@ -139,7 +147,8 @@
     display: block; width: 100%; border: 0; border-radius: 12px; padding: 14px; cursor: pointer;
     background: var(--primary); color: #fff; font-weight: 700; margin-top: 16px;
   }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #10201c; } }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #0d1b2b; } }
+  :root[data-theme="dark"] .btn { color: #0d1b2b; }
   .btn.ghost { background: var(--surface-2); color: var(--text); }
   .link { border: 0; background: none; color: var(--primary); cursor: pointer; padding: 0; font-weight: 600; }
   .back { border: 0; background: none; color: var(--primary); cursor: pointer; padding: 0; margin-bottom: 8px; font-weight: 600; }
